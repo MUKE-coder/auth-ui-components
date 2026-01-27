@@ -154,7 +154,7 @@ Generate the Prisma client and run migrations:
 
 ```bash
 pnpm prisma generate
-pnpm prisma migrate dev
+pnpm prisma migrate dev --name init
 ```
 
 ### Step 6: Start the Development Server
