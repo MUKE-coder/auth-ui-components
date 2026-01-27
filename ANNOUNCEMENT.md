@@ -1,21 +1,36 @@
-# Introducing JB Better Auth UI - Production-Ready Auth Components for Next.js
+# JB Better Auth UI - Stop Wasting Hours on Authentication Setup
 
-We're excited to announce **JB Better Auth UI**, a complete set of beautiful, production-ready authentication components for Next.js applications. Built with [shadcn/ui](https://ui.shadcn.com) and designed to work seamlessly with [Better Auth](https://www.better-auth.com), these components make adding authentication to your app incredibly simple.
+## The Problem
+
+Every time you start a new project, there's one thing that always slows you down: **authentication**.
+
+I've seen this pattern repeatedly with my team members. Someone starts a new project, and they spend **6 to 8 hours** just trying to get auth working. Setting up sign-in, sign-up, email verification, password reset, OAuth providers... it's always the same repetitive work that eats into productive development time.
+
+That's why I created **JB Better Auth UI** - a complete set of production-ready authentication components that you can install with a single command.
+
+## Get Started
+
+Visit the documentation site to get started:
+
+**[https://better-auth-ui.desishub.com](https://better-auth-ui.desishub.com)**
 
 ## One Command Installation
 
 Install everything you need with a single command:
 
 ```bash
-npx shadcn@latest add https://www.better-auth-ui.desishub.com/r/auth-components.json
+pnpm dlx shadcn@latest add https://better-auth-ui.desishub.com/r/auth-components.json
 ```
 
-That's it! This command installs:
+That's it! This single command installs:
 - 8 authentication components
 - Pre-configured auth client
 - Zod validation schemas
 - Prisma schema and configuration
 - Ready-to-use auth pages
+- Email templates for OTP verification
+- API route handler
+- Dashboard page
 - Environment variables template
 
 ## What's Included
@@ -27,22 +42,33 @@ That's it! This command installs:
 | `<SignIn />` | Email/password login with Google & GitHub OAuth |
 | `<SignUp />` | User registration with automatic email verification |
 | `<VerifyEmail />` | 6-digit OTP verification with resend functionality |
-| `<ForgetPassword />` | Password reset request form |
-| `<ResetPassword />` | Set new password with secure token |
+| `<ForgetPassword />` | Password reset request - sends OTP to email |
+| `<ResetPassword />` | Enter OTP and set new password |
 | `<ChangePassword />` | Update password for logged-in users |
 | `<Profile />` | User profile management with avatar |
 | `<LogoutButton />` | Configurable logout button component |
 
 ### Pre-Built Auth Pages
 
-The installation creates a complete auth flow in `app/(auth)/auth/`:
-- `/auth/sign-in` - Sign in page
-- `/auth/sign-up` - Sign up page
-- `/auth/verify-email` - Email verification page
-- `/auth/forgot-password` - Forgot password page
-- `/auth/reset-password` - Reset password page
-- `/auth/change-password` - Change password page
-- `/auth/profile` - Profile management page
+The installation creates a complete auth flow:
+
+```
+app/
+├── (auth)/
+│   └── auth/
+│       ├── sign-in/page.tsx
+│       ├── sign-up/page.tsx
+│       ├── verify-email/page.tsx
+│       ├── forgot-password/page.tsx
+│       ├── reset-password/page.tsx
+│       ├── change-password/page.tsx
+│       └── profile/page.tsx
+├── api/
+│   └── auth/
+│       └── [...all]/route.ts
+├── dashboard/page.tsx
+└── layout.tsx (with Toaster)
+```
 
 ### Database Setup
 
@@ -52,23 +78,34 @@ Includes a complete Prisma schema with:
 - OAuth account linking
 - Verification tokens
 
-## Getting Started
+---
 
-### 1. Prerequisites
+## Step-by-Step Setup Guide
 
-Make sure you have a Next.js project with shadcn/ui initialized:
-
-```bash
-npx shadcn@latest init
-```
-
-### 2. Install Components
+### Step 1: Create a New Next.js Project
 
 ```bash
-npx shadcn@latest add https://www.better-auth-ui.desishub.com/r/auth-components.json
+pnpm create next-app@latest my-app
+cd my-app
 ```
 
-### 3. Configure Environment Variables
+### Step 2: Initialize shadcn/ui
+
+```bash
+pnpm dlx shadcn@latest init
+```
+
+Select your preferences when prompted (recommended: New York style, Zinc color).
+
+### Step 3: Install JB Better Auth UI Components
+
+```bash
+pnpm dlx shadcn@latest add https://better-auth-ui.desishub.com/r/auth-components.json
+```
+
+This will install all the authentication components, pages, and configurations.
+
+### Step 4: Set Up Environment Variables
 
 Copy the generated `.env.example` to `.env.local`:
 
@@ -76,104 +113,103 @@ Copy the generated `.env.example` to `.env.local`:
 cp .env.example .env.local
 ```
 
-Fill in your values:
+Now fill in your environment variables:
 
 ```env
 # Better Auth Configuration
-BETTER_AUTH_SECRET="your-secret-key-at-least-32-chars"
+# Generate with: openssl rand -base64 32
+BETTER_AUTH_SECRET="your-generated-secret-key"
 BETTER_AUTH_URL="http://localhost:3000"
 
-# Database
-DATABASE_URL="postgresql://user:password@host:5432/dbname"
+# Database (PostgreSQL)
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
 
-# Email (Resend)
-RESEND_FROM_EMAIL="noreply@yourdomain.com"
+# Email Provider (Resend)
+# Get your API key at: https://resend.com
+RESEND_FROM_EMAIL="onboarding@resend.dev"
 RESEND_API_KEY="re_your_api_key"
 
-# OAuth (Optional)
+# OAuth Providers (Optional)
+# Google: https://console.cloud.google.com/apis/credentials
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
+
+# GitHub: https://github.com/settings/developers
 GITHUB_CLIENT_ID=""
 GITHUB_CLIENT_SECRET=""
 ```
 
-### 4. Initialize Database
+**How to get each variable:**
 
-Generate the Prisma client and push the schema:
+1. **BETTER_AUTH_SECRET**: Run `openssl rand -base64 32` in your terminal
+2. **DATABASE_URL**: Create a PostgreSQL database (try [Neon](https://neon.tech) or [Supabase](https://supabase.com) for free)
+3. **RESEND_API_KEY**: Sign up at [resend.com](https://resend.com) and create an API key
+4. **OAuth credentials**: Follow the links in the comments above
+
+For detailed instructions, visit: [https://better-auth-ui.desishub.com/docs/environment-variables](https://better-auth-ui.desishub.com/docs/environment-variables)
+
+### Step 5: Initialize the Database
+
+Generate the Prisma client and push the schema to your database:
 
 ```bash
-npx prisma generate
-npx prisma db push
+pnpm prisma generate
+pnpm prisma db push
 ```
 
-### 5. Create Better Auth Server Configuration
+### Step 6: Start the Development Server
 
-Create `lib/auth.ts`:
-
-```typescript
-import { betterAuth } from "better-auth";
-import { emailOTP } from "better-auth/plugins";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import prisma from "@/lib/prisma";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-export const auth = betterAuth({
-  database: prismaAdapter(prisma, { provider: "postgresql" }),
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: true,
-  },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    },
-  },
-  plugins: [
-    emailOTP({
-      sendVerificationOTP: async ({ email, otp }) => {
-        await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL!,
-          to: email,
-          subject: "Your verification code",
-          html: `<p>Your verification code is: <strong>${otp}</strong></p>`,
-        });
-      },
-    }),
-  ],
-});
+```bash
+pnpm dev
 ```
 
-### 6. Create API Route
+### Step 7: Test Your Auth Flow
 
-Create `app/api/auth/[...all]/route.ts`:
+Navigate to [http://localhost:3000/auth/sign-up](http://localhost:3000/auth/sign-up) and create an account!
 
-```typescript
-import { auth } from "@/lib/auth";
-import { toNextJsHandler } from "better-auth/next-js";
+The complete flow works like this:
 
-export const { GET, POST } = toNextJsHandler(auth);
+1. **Sign Up** → Enter email and password
+2. **Verify Email** → Check your email for the 6-digit OTP code
+3. **Sign In** → Log in with your verified account
+4. **Dashboard** → You're in! Protected dashboard page
+5. **Forgot Password** → Request password reset (sends OTP)
+6. **Reset Password** → Enter OTP and new password
+
+---
+
+## Authentication Flows Explained
+
+### Email Verification Flow
+```
+Sign Up → OTP sent to email → Enter OTP → Account verified → Redirect to Sign In
 ```
 
-### 7. Start Using!
+### Password Reset Flow (OTP-based)
+```
+Forgot Password → Enter email → OTP sent → Enter OTP + new password → Password reset → Sign In
+```
 
-Navigate to `/auth/sign-in` and your auth flow is ready!
+### OAuth Flow
+```
+Click Google/GitHub → Authorize → Account created/linked → Redirect to Dashboard
+```
+
+---
 
 ## Features
 
 - **Beautiful UI** - Built with shadcn/ui for a modern, accessible design
 - **Type Safe** - Written in TypeScript with Zod validation
-- **Email OTP** - Secure email verification with 6-digit codes
+- **Email OTP** - Secure 6-digit code verification for both email and password reset
 - **Social Login** - Google and GitHub OAuth pre-configured
 - **Fully Customizable** - All components are yours to modify
 - **Dark Mode** - Automatic dark mode support
 - **Mobile Responsive** - Works great on all devices
+- **Session Management** - Secure session handling with Better Auth
+- **Protected Routes** - Dashboard with authentication check
+
+---
 
 ## Tech Stack
 
@@ -185,12 +221,16 @@ Navigate to `/auth/sign-in` and your auth flow is ready!
 - [React Hook Form](https://react-hook-form.com) - Form Handling
 - [Zod](https://zod.dev) - Schema Validation
 
+---
+
 ## Links
 
-- **Documentation**: [https://www.better-auth-ui.desishub.com](https://www.better-auth-ui.desishub.com)
-- **Environment Variables Guide**: [https://www.better-auth-ui.desishub.com/docs/environment-variables](https://www.better-auth-ui.desishub.com/docs/environment-variables)
+- **Documentation**: [https://better-auth-ui.desishub.com](https://better-auth-ui.desishub.com)
+- **Environment Variables Guide**: [https://better-auth-ui.desishub.com/docs/environment-variables](https://better-auth-ui.desishub.com/docs/environment-variables)
 - **GitHub**: [https://github.com/MUKE-coder/auth-ui-components](https://github.com/MUKE-coder/auth-ui-components)
-- **Demo**: [https://www.better-auth-ui.desishub.com/dashboard](https://www.better-auth-ui.desishub.com/dashboard)
+- **Demo**: [https://better-auth-ui.desishub.com/dashboard](https://better-auth-ui.desishub.com/dashboard)
+
+---
 
 ## Contributing
 
@@ -201,5 +241,7 @@ Contributions are welcome! Feel free to open issues and pull requests on GitHub.
 MIT License - feel free to use in personal and commercial projects.
 
 ---
+
+**Stop wasting hours on authentication. Install JB Better Auth UI and start building what matters.**
 
 Built with love by [MUKE-coder](https://github.com/MUKE-coder)
