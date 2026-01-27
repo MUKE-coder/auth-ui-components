@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "jb-better-auth-ui",
-  "homepage": "https://www.better-auth-ui.desishub.com",
+  "homepage": "https://better-auth-ui.desishub.com",
   "items": [
     {
       "name": "auth-components",
@@ -19,9 +19,7 @@
         "@prisma/adapter-pg",
         "dotenv"
       ],
-      "devDependencies": [
-        "prisma"
-      ],
+      "devDependencies": ["prisma"],
       "registryDependencies": [
         "button",
         "input",
