@@ -12,12 +12,16 @@
     "lucide-react",
     "input-otp",
     "@prisma/adapter-pg",
+    "@prisma/client",
+    "pg",
     "dotenv",
     "resend",
     "@react-email/components"
   ],
   "devDependencies": [
-    "prisma"
+    "prisma",
+    "tsx",
+    "@types/pg"
   ],
   "registryDependencies": [
     "button",
@@ -191,6 +195,18 @@
       "content": "# Better Auth Configuration\n# Generate secret with: openssl rand -base64 32\nBETTER_AUTH_SECRET=\"\"\nBETTER_AUTH_URL=\"http://localhost:3000\"\n\n# Database (PostgreSQL recommended)\n# Example: postgresql://user:password@host:5432/dbname\nDATABASE_URL=\"\"\n\n# Email Provider (Resend)\n# Get your API key at: https://resend.com\nRESEND_FROM_EMAIL=\"\"\nRESEND_API_KEY=\"\"\n\n# OAuth Providers (Optional)\n# Google: https://console.cloud.google.com/apis/credentials\nGOOGLE_CLIENT_ID=\"\"\nGOOGLE_CLIENT_SECRET=\"\"\n\n# GitHub: https://github.com/settings/developers\nGITHUB_CLIENT_ID=\"\"\nGITHUB_CLIENT_SECRET=\"\"\n",
       "type": "registry:file",
       "target": ".env.example"
+    },
+    {
+      "path": "registry/default/pages/layout.tsx",
+      "content": "import type { Metadata } from \"next\";\nimport { Inter } from \"next/font/google\";\nimport \"./globals.css\";\nimport { Toaster } from \"sonner\";\n\nconst inter = Inter({ subsets: [\"latin\"] });\n\nexport const metadata: Metadata = {\n  title: \"My App\",\n  description: \"My application with Better Auth\",\n};\n\nexport default function RootLayout({\n  children,\n}: Readonly<{\n  children: React.ReactNode;\n}>) {\n  return (\n    <html lang=\"en\">\n      <body className={inter.className}>\n        {children}\n        <Toaster richColors />\n      </body>\n    </html>\n  );\n}\n",
+      "type": "registry:page",
+      "target": "app/layout.tsx"
+    },
+    {
+      "path": "registry/default/pages/dashboard/page.tsx",
+      "content": "import { auth } from \"@/lib/auth\";\nimport { headers } from \"next/headers\";\nimport { redirect } from \"next/navigation\";\nimport { LogoutButton } from \"@/components/auth/logout-button\";\n\nexport const dynamic = \"force-dynamic\";\n\nexport default async function DashboardPage() {\n  const session = await auth.api.getSession({\n    headers: await headers(),\n  });\n\n  if (!session) {\n    redirect(\"/auth/sign-in\");\n  }\n\n  return (\n    <div className=\"flex flex-col items-center justify-center min-h-screen p-4\">\n      <h1 className=\"text-3xl font-bold mb-4\">Dashboard</h1>\n      <p className=\"text-lg mb-8\">Welcome, {session.user.name}!</p>\n      <div className=\"bg-muted p-4 rounded-lg mb-6\">\n        <p>Email: {session.user.email}</p>\n      </div>\n      <LogoutButton />\n    </div>\n  );\n}\n",
+      "type": "registry:page",
+      "target": "app/dashboard/page.tsx"
     }
   ],
   "type": "registry:block"

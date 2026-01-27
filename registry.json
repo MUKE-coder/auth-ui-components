@@ -17,11 +17,13 @@
         "lucide-react",
         "input-otp",
         "@prisma/adapter-pg",
+        "@prisma/client",
+        "pg",
         "dotenv",
         "resend",
         "@react-email/components"
       ],
-      "devDependencies": ["prisma"],
+      "devDependencies": ["prisma", "tsx", "@types/pg"],
       "registryDependencies": [
         "button",
         "input",
@@ -167,6 +169,16 @@
           "path": "registry/default/env.example",
           "type": "registry:file",
           "target": ".env.example"
+        },
+        {
+          "path": "registry/default/pages/layout.tsx",
+          "type": "registry:page",
+          "target": "app/layout.tsx"
+        },
+        {
+          "path": "registry/default/pages/dashboard/page.tsx",
+          "type": "registry:page",
+          "target": "app/dashboard/page.tsx"
         }
       ]
     }
