@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
+import { Geist, Geist_Mono, Onest } from "next/font/google";
+
 import "./globals.css";
 import { Toaster } from "sonner";
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const onest = Onest({ subsets: ["latin"], weight: ["400", "500", "600"] });
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
-  generator: "v0.app",
+  title: "Better Auth UI By JB",
+  description: "Created by JB",
   icons: {
     icon: [
       {
@@ -37,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
+      <body className={onest.className}>
         {children}
         <Toaster richColors />
       </body>
