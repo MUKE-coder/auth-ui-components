@@ -34,13 +34,14 @@ export function ForgetPassword() {
 
   async function onSubmit(data: ForgetPasswordInput) {
     setIsLoading(true)
-    await authClient.forgetPassword({
+    await authClient.emailOtp.sendVerificationOtp({
         email: data.email,
-        redirectTo: "/auth/reset-password",
+        type: "forget-password",
     }, {
         onSuccess: () => {
              toast.success("If an account exists, a reset code has been sent.")
-             // router.push("/auth/reset-password") // Optional: redirect or stay and show message
+             sessionStorage.setItem("reset_email", data.email)
+             router.push("/auth/reset-password")
         },
         onError: (ctx) => {
              form.setError('root', {
