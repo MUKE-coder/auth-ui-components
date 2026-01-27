@@ -61,6 +61,11 @@
           "target": "components/auth/reset-password.tsx"
         },
         {
+          "path": "registry/default/ui/auth-forms/reset-password-template.tsx",
+          "type": "registry:component",
+          "target": "components/emails/reset-password-template.tsx"
+        },
+        {
           "path": "registry/default/ui/auth-forms/change-password.tsx",
           "type": "registry:component",
           "target": "components/auth/change-password.tsx"

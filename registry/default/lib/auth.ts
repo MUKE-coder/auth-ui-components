@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./prisma";
 import { emailOTP } from "better-auth/plugins";
-import { sendVerificationEmail } from "./email";
+import { sendVerificationEmail, sendResetPasswordEmail } from "./email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -11,6 +11,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    async sendResetPassword(data, request) {
+      try {
+        await sendResetPasswordEmail(data.user.email, data.url);
+      } catch (error) {
+        console.error("Error sending reset password email:", error);
+      }
+    },
   },
   socialProviders: {
     google: {
