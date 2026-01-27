@@ -10,7 +10,12 @@
     "@hookform/resolvers",
     "sonner",
     "lucide-react",
-    "input-otp"
+    "input-otp",
+    "@prisma/adapter-pg",
+    "dotenv"
+  ],
+  "devDependencies": [
+    "prisma"
   ],
   "registryDependencies": [
     "button",
@@ -19,7 +24,8 @@
     "label",
     "card",
     "separator",
-    "input-otp"
+    "input-otp",
+    "avatar"
   ],
   "files": [
     {
@@ -93,6 +99,72 @@
       "content": "import { z } from 'zod'\n\nexport const signUpSchema = z.object({\n  name: z.string().min(2, 'Name must be at least 2 characters'),\n  email: z.string().email('Please enter a valid email address'),\n  password: z.string()\n    .min(8, 'Password must be at least 8 characters')\n    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')\n    .regex(/[0-9]/, 'Password must contain at least one number'),\n  confirmPassword: z.string(),\n}).refine((data) => data.password === data.confirmPassword, {\n  message: \"Passwords don't match\",\n  path: [\"confirmPassword\"],\n})\n\nexport const signInSchema = z.object({\n  email: z.string().email('Please enter a valid email address'),\n  password: z.string().min(1, 'Password is required'),\n})\n\nexport const forgetPasswordSchema = z.object({\n  email: z.string().email('Please enter a valid email address'),\n})\n\nexport const resetPasswordSchema = z.object({\n  password: z.string()\n    .min(8, 'Password must be at least 8 characters')\n    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')\n    .regex(/[0-9]/, 'Password must contain at least one number'),\n  confirmPassword: z.string(),\n}).refine((data) => data.password === data.confirmPassword, {\n  message: \"Passwords don't match\",\n  path: [\"confirmPassword\"],\n})\n\nexport const verifyEmailSchema = z.object({\n  code: z.string().length(6, 'Code must be 6 digits'),\n})\n\nexport const profileSchema = z.object({\n  firstName: z.string().min(2, 'First name must be at least 2 characters'),\n  lastName: z.string().min(2, 'Last name must be at least 2 characters'),\n  email: z.string().email('Please enter a valid email address'),\n  phone: z.string().optional(),\n  imageUrl: z.string().url().optional().or(z.literal('')),\n})\n\nexport const passwordChangeSchema = z.object({\n  currentPassword: z.string().min(1, 'Current password is required'),\n  newPassword: z.string()\n    .min(8, 'Password must be at least 8 characters')\n    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')\n    .regex(/[0-9]/, 'Password must contain at least one number'),\n  confirmPassword: z.string(),\n}).refine((data) => data.newPassword === data.confirmPassword, {\n  message: \"Passwords don't match\",\n  path: [\"confirmPassword\"],\n}).refine((data) => data.currentPassword !== data.newPassword, {\n  message: \"New password must be different from current password\",\n  path: [\"newPassword\"],\n})\n\nexport type SignUpInput = z.infer<typeof signUpSchema>\nexport type SignInInput = z.infer<typeof signInSchema>\nexport type ForgetPasswordInput = z.infer<typeof forgetPasswordSchema>\nexport type ResetPasswordInput = z.infer<typeof resetPasswordSchema>\nexport type VerifyEmailInput = z.infer<typeof verifyEmailSchema>\nexport type ProfileInput = z.infer<typeof profileSchema>\nexport type PasswordChangeInput = z.infer<typeof passwordChangeSchema>\n",
       "type": "registry:lib",
       "target": "lib/auth-schemas.ts"
+    },
+    {
+      "path": "registry/default/lib/prisma.ts",
+      "content": "import { PrismaPg } from \"@prisma/adapter-pg\";\nimport { PrismaClient } from \"./generated/prisma/client\";\n\nconst globalForPrisma = global as unknown as {\n  prisma: PrismaClient;\n};\n\nconst adapter = new PrismaPg({\n  connectionString: process.env.DATABASE_URL,\n});\n\nconst prisma =\n  globalForPrisma.prisma ||\n  new PrismaClient({\n    adapter,\n  });\n\nif (process.env.NODE_ENV !== \"production\") globalForPrisma.prisma = prisma;\n\nexport default prisma;\n",
+      "type": "registry:lib",
+      "target": "lib/prisma.ts"
+    },
+    {
+      "path": "registry/default/prisma/schema.prisma",
+      "content": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../lib/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id            String    @id @default(cuid())\n  email         String    @unique\n  name          String?\n  emailVerified Boolean\n  image         String?\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @updatedAt\n  role          String?   @default(\"user\")\n  sessions      Session[]\n  accounts      Account[]\n\n  @@map(\"user\")\n}\n\nmodel Session {\n  id        String   @id @default(cuid())\n  userId    String\n  token     String\n  expiresAt DateTime\n  ipAddress String?\n  userAgent String?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@map(\"session\")\n}\n\nmodel Account {\n  id                    String    @id @default(cuid())\n  userId                String\n  accountId             String\n  providerId            String\n  accessToken           String?\n  refreshToken          String?\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String?\n  password              String?\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"account\")\n}\n\nmodel Verification {\n  id         String   @id @default(cuid())\n  identifier String\n  value      String\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@map(\"verification\")\n}\n",
+      "type": "registry:file",
+      "target": "prisma/schema.prisma"
+    },
+    {
+      "path": "registry/default/prisma.config.ts",
+      "content": "import \"dotenv/config\";\nimport { defineConfig } from \"prisma/config\";\n\nexport default defineConfig({\n  schema: \"prisma/schema.prisma\",\n  migrations: {\n    path: \"prisma/migrations\",\n  },\n  datasource: {\n    url: process.env[\"DATABASE_URL\"],\n  },\n});\n",
+      "type": "registry:file",
+      "target": "prisma.config.ts"
+    },
+    {
+      "path": "registry/default/pages/auth/sign-in/page.tsx",
+      "content": "import { SignIn } from \"@/components/auth\";\n\nexport default function SignInPage() {\n  return <SignIn />;\n}\n",
+      "type": "registry:page",
+      "target": "app/(auth)/auth/sign-in/page.tsx"
+    },
+    {
+      "path": "registry/default/pages/auth/sign-up/page.tsx",
+      "content": "import { SignUp } from \"@/components/auth\";\n\nexport default function SignUpPage() {\n  return <SignUp />;\n}\n",
+      "type": "registry:page",
+      "target": "app/(auth)/auth/sign-up/page.tsx"
+    },
+    {
+      "path": "registry/default/pages/auth/verify-email/page.tsx",
+      "content": "import { VerifyEmail } from \"@/components/auth\";\n\nexport default function VerifyEmailPage() {\n  return <VerifyEmail />;\n}\n",
+      "type": "registry:page",
+      "target": "app/(auth)/auth/verify-email/page.tsx"
+    },
+    {
+      "path": "registry/default/pages/auth/forgot-password/page.tsx",
+      "content": "import { ForgetPassword } from \"@/components/auth\";\n\nexport default function ForgotPasswordPage() {\n  return <ForgetPassword />;\n}\n",
+      "type": "registry:page",
+      "target": "app/(auth)/auth/forgot-password/page.tsx"
+    },
+    {
+      "path": "registry/default/pages/auth/reset-password/page.tsx",
+      "content": "import { ResetPassword } from \"@/components/auth\";\n\nexport default function ResetPasswordPage() {\n  return <ResetPassword />;\n}\n",
+      "type": "registry:page",
+      "target": "app/(auth)/auth/reset-password/page.tsx"
+    },
+    {
+      "path": "registry/default/pages/auth/change-password/page.tsx",
+      "content": "import { ChangePassword } from \"@/components/auth\";\n\nexport default function ChangePasswordPage() {\n  return <ChangePassword />;\n}\n",
+      "type": "registry:page",
+      "target": "app/(auth)/auth/change-password/page.tsx"
+    },
+    {
+      "path": "registry/default/pages/auth/profile/page.tsx",
+      "content": "import { Profile } from \"@/components/auth\";\n\nexport default function ProfilePage() {\n  return <Profile />;\n}\n",
+      "type": "registry:page",
+      "target": "app/(auth)/auth/profile/page.tsx"
+    },
+    {
+      "path": "registry/default/env.example",
+      "content": "# Better Auth Configuration\nBETTER_AUTH_SECRET=\"\"\nBETTER_AUTH_URL=\"http://localhost:3000\"\n\n# Database (PostgreSQL, MySQL, or SQLite)\nDATABASE_URL=\"\"\n\n# Email Provider (Resend)\nRESEND_FROM_EMAIL=\"\"\nRESEND_API_KEY=\"\"\n\n# OAuth Providers (Optional)\nGOOGLE_CLIENT_ID=\"\"\nGOOGLE_CLIENT_SECRET=\"\"\n\nGITHUB_CLIENT_ID=\"\"\nGITHUB_CLIENT_SECRET=\"\"\n",
+      "type": "registry:file",
+      "target": ".env.example"
     }
   ],
   "type": "registry:block"

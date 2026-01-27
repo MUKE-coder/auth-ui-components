@@ -1,6 +1,8 @@
-# JB Better Auth UI Updated
+# JB Better Auth UI
 
 A complete set of authentication UI components for Next.js applications using [Better Auth](https://www.better-auth.com/). Built with [shadcn/ui](https://ui.shadcn.com/) components, React Hook Form, and Zod validation.
+
+**Live Demo & Docs:** [https://www.better-auth-ui.desishub.com](https://www.better-auth-ui.desishub.com)
 
 ## Features
 
@@ -10,12 +12,14 @@ A complete set of authentication UI components for Next.js applications using [B
 - **Forgot Password** - Password reset request flow
 - **Reset Password** - Token-based password reset
 - **Change Password** - Authenticated password change with session revocation
-- **Profile** - User profile management
+- **Profile** - User profile management with avatar
 - **Logout Button** - Configurable logout component
+- **Pre-built Pages** - All auth pages created automatically
+- **Prisma Setup** - Database schema included
 
-## Installation
+## Quick Start
 
-### Prerequisites
+### 1. Prerequisites
 
 Make sure you have a Next.js project with shadcn/ui initialized:
 
@@ -23,45 +27,79 @@ Make sure you have a Next.js project with shadcn/ui initialized:
 npx shadcn@latest init
 ```
 
-### Install the Components
+### 2. Install the Components
 
 ```bash
-# Replace YOUR_DOMAIN with your deployed URL (e.g., jb-better-auth-ui.vercel.app)
-npx shadcn@latest add https://YOUR_DOMAIN/r/auth-components.json
+npx shadcn@latest add https://www.better-auth-ui.desishub.com/r/auth-components.json
 ```
-
-> **Note:** You need to deploy this registry project first. See [Deployment](#deployment) section.
 
 This will install:
 
-- All authentication UI components to `components/auth/`
+- 8 authentication UI components to `components/auth/`
 - Auth client configuration to `lib/auth-client.ts`
 - Zod validation schemas to `lib/auth-schemas.ts`
+- Prisma schema and configuration
+- Pre-built auth pages in `app/(auth)/auth/`
+- Environment variables template `.env.example`
 - Icons to `components/icons.tsx`
 
-### Install Additional Dependencies
+### 3. Configure Environment Variables
 
-The following dependencies will be installed automatically:
+Copy the generated `.env.example` to `.env.local`:
 
 ```bash
-npm install better-auth zod react-hook-form @hookform/resolvers sonner lucide-react input-otp
+cp .env.example .env.local
 ```
 
-## Setup
+Fill in your values:
 
-### 1. Configure Better Auth Server
+```env
+# Better Auth Configuration
+BETTER_AUTH_SECRET=""
+BETTER_AUTH_URL="http://localhost:3000"
 
-Create `lib/auth.ts` for your server-side auth configuration:
+# Database (PostgreSQL, MySQL, or SQLite)
+DATABASE_URL=""
+
+# Email Provider (Resend)
+RESEND_FROM_EMAIL=""
+RESEND_API_KEY=""
+
+# OAuth Providers (Optional)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+```
+
+See the [Environment Variables Guide](https://www.better-auth-ui.desishub.com/docs/environment-variables) for detailed instructions on obtaining each value.
+
+### 4. Initialize Database
+
+Generate the Prisma client and push the schema:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 5. Configure Better Auth Server
+
+Create `lib/auth.ts`:
 
 ```typescript
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./prisma";
 import { emailOTP } from "better-auth/plugins";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
-    provider: "postgresql", // or "mysql", "sqlite"
+    provider: "postgresql",
   }),
   emailAndPassword: {
     enabled: true,
@@ -80,22 +118,19 @@ export const auth = betterAuth({
   plugins: [
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
-        // Implement your email sending logic here
-        // Example with Resend:
-        // await resend.emails.send({
-        //   from: "noreply@yourdomain.com",
-        //   to: email,
-        //   subject: "Your Verification Code",
-        //   html: `<p>Your code is: <strong>${otp}</strong></p>`,
-        // });
-        console.log(`OTP for ${email}: ${otp}`);
+        await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL!,
+          to: email,
+          subject: "Your Verification Code",
+          html: `<p>Your verification code is: <strong>${otp}</strong></p>`,
+        });
       },
     }),
   ],
 });
 ```
 
-### 2. Create API Route
+### 6. Create API Route
 
 Create `app/api/auth/[...all]/route.ts`:
 
@@ -103,130 +138,52 @@ Create `app/api/auth/[...all]/route.ts`:
 import { auth } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
 
-export const dynamic = "force-dynamic";
-export const { GET, POST } = toNextJsHandler(auth.handler);
+export const { GET, POST } = toNextJsHandler(auth);
 ```
 
-### 3. Environment Variables
+### 7. Start Using!
 
-Add the following to your `.env.local`:
+Navigate to `/auth/sign-in` and your auth flow is ready!
 
-```env
-# Better Auth
-BETTER_AUTH_SECRET="your-secret-key-min-32-characters"
-BETTER_AUTH_URL="http://localhost:3000"
+## Components
 
-# Database
-DATABASE_URL="your-database-connection-string"
+| Component        | Description                         |
+| ---------------- | ----------------------------------- |
+| `SignUp`         | Registration form with social OAuth |
+| `SignIn`         | Login form with social OAuth        |
+| `VerifyEmail`    | 6-digit OTP verification            |
+| `ForgetPassword` | Password reset request              |
+| `ResetPassword`  | New password form                   |
+| `ChangePassword` | Authenticated password change       |
+| `Profile`        | User profile management             |
+| `LogoutButton`   | Configurable logout button          |
 
-# OAuth Providers (optional)
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-GITHUB_CLIENT_ID="your-github-client-id"
-GITHUB_CLIENT_SECRET="your-github-client-secret"
+## Pre-Built Pages
 
-# Email (optional - for Resend)
-RESEND_API_KEY="your-resend-api-key"
-```
+The installation creates a complete auth flow in `app/(auth)/auth/`:
 
-### 4. Database Schema
+| Route | Description |
+|-------|-------------|
+| `/auth/sign-in` | Sign in page |
+| `/auth/sign-up` | Sign up page |
+| `/auth/verify-email` | Email verification page |
+| `/auth/forgot-password` | Forgot password page |
+| `/auth/reset-password` | Reset password page |
+| `/auth/change-password` | Change password page |
+| `/auth/profile` | Profile management page |
 
-If using Prisma, add these models to your `schema.prisma`:
+## Usage Examples
 
-```prisma
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String?
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-}
-
-model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  expiresAt DateTime
-  ipAddress String?
-  userAgent String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Account {
-  id           String  @id @default(cuid())
-  userId       String
-  providerId   String
-  accountId    String
-  accessToken  String?
-  refreshToken String?
-  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Verification {
-  id         String   @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-}
-```
-
-## Usage
-
-### Create Auth Pages
-
-**Sign Up Page** - `app/auth/sign-up/page.tsx`:
+### Using Components Directly
 
 ```tsx
-import { SignUp } from "@/components/auth";
+import { SignIn, SignUp, Profile, LogoutButton } from "@/components/auth";
 
-export default function SignUpPage() {
-  return <SignUp />;
-}
-```
-
-**Sign In Page** - `app/auth/sign-in/page.tsx`:
-
-```tsx
-import { SignIn } from "@/components/auth";
-
-export default function SignInPage() {
-  return <SignIn />;
-}
-```
-
-**Verify Email Page** - `app/auth/verify-email/page.tsx`:
-
-```tsx
-import { VerifyEmail } from "@/components/auth";
-
-export default function VerifyEmailPage() {
-  return <VerifyEmail />;
-}
-```
-
-**Forgot Password Page** - `app/auth/forgot-password/page.tsx`:
-
-```tsx
-import { ForgetPassword } from "@/components/auth";
-
-export default function ForgotPasswordPage() {
-  return <ForgetPassword />;
-}
-```
-
-**Reset Password Page** - `app/auth/reset-password/page.tsx`:
-
-```tsx
-import { ResetPassword } from "@/components/auth";
-
-export default function ResetPasswordPage() {
-  return <ResetPassword />;
-}
+// In your pages
+<SignIn />
+<SignUp />
+<Profile />
+<LogoutButton />
 ```
 
 ### Using the Logout Button
@@ -248,8 +205,6 @@ export default function Dashboard() {
 ```
 
 ### Protecting Routes
-
-Create a protected dashboard page:
 
 ```tsx
 import { auth } from "@/lib/auth";
@@ -276,19 +231,6 @@ export default async function DashboardPage() {
 }
 ```
 
-## Components
-
-| Component        | Description                         |
-| ---------------- | ----------------------------------- |
-| `SignUp`         | Registration form with social OAuth |
-| `SignIn`         | Login form with social OAuth        |
-| `VerifyEmail`    | 6-digit OTP verification            |
-| `ForgetPassword` | Password reset request              |
-| `ResetPassword`  | New password form                   |
-| `ChangePassword` | Authenticated password change       |
-| `Profile`        | User profile management             |
-| `LogoutButton`   | Configurable logout button          |
-
 ## Customization
 
 ### Styling
@@ -309,6 +251,8 @@ Update the redirect paths in each component to match your app's routing structur
 
 ## Dependencies
 
+These are installed automatically:
+
 - [better-auth](https://www.better-auth.com/) - Authentication library
 - [shadcn/ui](https://ui.shadcn.com/) - UI components
 - [react-hook-form](https://react-hook-form.com/) - Form management
@@ -316,28 +260,14 @@ Update the redirect paths in each component to match your app's routing structur
 - [sonner](https://sonner.emilkowal.ski/) - Toast notifications
 - [lucide-react](https://lucide.dev/) - Icons
 - [input-otp](https://input-otp.rodz.dev/) - OTP input component
+- [prisma](https://www.prisma.io/) - Database ORM
+- [@prisma/adapter-pg](https://www.prisma.io/) - PostgreSQL adapter
 
-## Deployment
+## Links
 
-To make this registry available to others, deploy it to a hosting platform:
-
-### Deploy to Vercel (Recommended)
-
-1. Push this project to GitHub
-2. Go to [vercel.com](https://vercel.com) and import your repository
-3. Deploy - Vercel will automatically detect Next.js
-4. Your registry will be available at:
-   ```
-   https://your-project-name.vercel.app/r/auth-components.json
-   ```
-
-### After Deployment
-
-Share the installation command with your team/users:
-
-```bash
-npx shadcn@latest add https://your-project-name.vercel.app/r/auth-components.json
-```
+- **Documentation**: [https://www.better-auth-ui.desishub.com](https://www.better-auth-ui.desishub.com)
+- **Environment Variables Guide**: [https://www.better-auth-ui.desishub.com/docs/environment-variables](https://www.better-auth-ui.desishub.com/docs/environment-variables)
+- **GitHub**: [https://github.com/MUKE-coder/auth-ui-components](https://github.com/MUKE-coder/auth-ui-components)
 
 ## License
 

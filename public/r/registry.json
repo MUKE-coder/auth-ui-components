@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "jb-better-auth-ui",
-  "homepage": "https://github.com/YOUR_USERNAME/auth-ui-components",
+  "homepage": "https://www.better-auth-ui.desishub.com",
   "items": [
     {
       "name": "auth-components",
@@ -15,7 +15,12 @@
         "@hookform/resolvers",
         "sonner",
         "lucide-react",
-        "input-otp"
+        "input-otp",
+        "@prisma/adapter-pg",
+        "dotenv"
+      ],
+      "devDependencies": [
+        "prisma"
       ],
       "registryDependencies": [
         "button",
@@ -24,7 +29,8 @@
         "label",
         "card",
         "separator",
-        "input-otp"
+        "input-otp",
+        "avatar"
       ],
       "files": [
         {
@@ -86,6 +92,61 @@
           "path": "registry/default/lib/auth-schemas.ts",
           "type": "registry:lib",
           "target": "lib/auth-schemas.ts"
+        },
+        {
+          "path": "registry/default/lib/prisma.ts",
+          "type": "registry:lib",
+          "target": "lib/prisma.ts"
+        },
+        {
+          "path": "registry/default/prisma/schema.prisma",
+          "type": "registry:file",
+          "target": "prisma/schema.prisma"
+        },
+        {
+          "path": "registry/default/prisma.config.ts",
+          "type": "registry:file",
+          "target": "prisma.config.ts"
+        },
+        {
+          "path": "registry/default/pages/auth/sign-in/page.tsx",
+          "type": "registry:page",
+          "target": "app/(auth)/auth/sign-in/page.tsx"
+        },
+        {
+          "path": "registry/default/pages/auth/sign-up/page.tsx",
+          "type": "registry:page",
+          "target": "app/(auth)/auth/sign-up/page.tsx"
+        },
+        {
+          "path": "registry/default/pages/auth/verify-email/page.tsx",
+          "type": "registry:page",
+          "target": "app/(auth)/auth/verify-email/page.tsx"
+        },
+        {
+          "path": "registry/default/pages/auth/forgot-password/page.tsx",
+          "type": "registry:page",
+          "target": "app/(auth)/auth/forgot-password/page.tsx"
+        },
+        {
+          "path": "registry/default/pages/auth/reset-password/page.tsx",
+          "type": "registry:page",
+          "target": "app/(auth)/auth/reset-password/page.tsx"
+        },
+        {
+          "path": "registry/default/pages/auth/change-password/page.tsx",
+          "type": "registry:page",
+          "target": "app/(auth)/auth/change-password/page.tsx"
+        },
+        {
+          "path": "registry/default/pages/auth/profile/page.tsx",
+          "type": "registry:page",
+          "target": "app/(auth)/auth/profile/page.tsx"
+        },
+        {
+          "path": "registry/default/env.example",
+          "type": "registry:file",
+          "target": ".env.example"
         }
       ]
     }

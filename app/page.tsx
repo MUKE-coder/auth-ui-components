@@ -13,11 +13,11 @@ export default function DocsPage() {
 
   const commands = {
     npx: {
-      install: 'npx shadcn@latest add https://auth-ui-components.vercel.app/r/auth-components.json',
+      install: 'npx shadcn@latest add https://www.better-auth-ui.desishub.com/r/auth-components.json',
       init: 'npx shadcn@latest init',
     },
     pnpm: {
-      install: 'pnpm dlx shadcn@latest add https://auth-ui-components.vercel.app/r/auth-components.json',
+      install: 'pnpm dlx shadcn@latest add https://www.better-auth-ui.desishub.com/r/auth-components.json',
       init: 'pnpm dlx shadcn@latest init',
     },
   }
@@ -236,6 +236,35 @@ export default function DocsPage() {
             <div className="bg-background rounded-lg p-6 border">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">3</div>
+                <h3 className="font-semibold">Configure Environment Variables</h3>
+              </div>
+              <p className="text-muted-foreground mb-4">Copy the generated .env.example to .env.local and fill in your values:</p>
+              <div className="bg-muted rounded-lg p-4 font-mono text-sm overflow-x-auto">
+                <pre>{`cp .env.example .env.local`}</pre>
+              </div>
+              <Link href="/docs/environment-variables" className="inline-flex items-center gap-2 mt-4 text-primary hover:underline text-sm">
+                View full environment variables guide
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            {/* Step 4 */}
+            <div className="bg-background rounded-lg p-6 border">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">4</div>
+                <h3 className="font-semibold">Initialize Prisma</h3>
+              </div>
+              <p className="text-muted-foreground mb-4">Generate the Prisma client and run migrations:</p>
+              <div className="bg-muted rounded-lg p-4 font-mono text-sm overflow-x-auto space-y-2">
+                <pre>{`npx prisma generate`}</pre>
+                <pre>{`npx prisma db push`}</pre>
+              </div>
+            </div>
+
+            {/* Step 5 */}
+            <div className="bg-background rounded-lg p-6 border">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">5</div>
                 <h3 className="font-semibold">Configure Better Auth</h3>
               </div>
               <p className="text-muted-foreground mb-4">Create your Better Auth server configuration:</p>
@@ -261,20 +290,21 @@ export const auth = betterAuth({
               </div>
             </div>
 
-            {/* Step 4 */}
+            {/* Step 6 */}
             <div className="bg-background rounded-lg p-6 border">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">4</div>
-                <h3 className="font-semibold">Create Auth Pages</h3>
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">6</div>
+                <h3 className="font-semibold">Start Using Components</h3>
               </div>
-              <p className="text-muted-foreground mb-4">Use the components in your pages:</p>
+              <p className="text-muted-foreground mb-4">Auth pages are automatically created in app/(auth)/auth/. You can also import components directly:</p>
               <div className="bg-muted rounded-lg p-4 font-mono text-sm overflow-x-auto">
-                <pre>{`// app/auth/sign-in/page.tsx
-import { SignIn } from "@/components/auth";
+                <pre>{`import { SignIn, SignUp, Profile, LogoutButton } from "@/components/auth";
 
-export default function SignInPage() {
-  return <SignIn />;
-}`}</pre>
+// Use in your pages
+<SignIn />
+<SignUp />
+<Profile />
+<LogoutButton />`}</pre>
               </div>
             </div>
           </div>
