@@ -20,7 +20,7 @@ export function AppLogoIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
+export function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -49,7 +49,7 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
+export function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
