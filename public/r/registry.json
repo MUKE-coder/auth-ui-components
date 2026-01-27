@@ -1,0 +1,93 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "jb-better-auth-ui",
+  "homepage": "https://github.com/YOUR_USERNAME/auth-ui-components",
+  "items": [
+    {
+      "name": "auth-components",
+      "type": "registry:block",
+      "title": "JB Better Auth UI Components",
+      "description": "A complete set of authentication components using better-auth with email OTP verification, social login, and profile management.",
+      "dependencies": [
+        "better-auth",
+        "zod",
+        "react-hook-form",
+        "@hookform/resolvers",
+        "sonner",
+        "lucide-react",
+        "input-otp"
+      ],
+      "registryDependencies": [
+        "button",
+        "input",
+        "form",
+        "label",
+        "card",
+        "separator",
+        "input-otp"
+      ],
+      "files": [
+        {
+          "path": "registry/default/ui/auth-forms/sign-in.tsx",
+          "type": "registry:component",
+          "target": "components/auth/sign-in.tsx"
+        },
+        {
+          "path": "registry/default/ui/auth-forms/sign-up.tsx",
+          "type": "registry:component",
+          "target": "components/auth/sign-up.tsx"
+        },
+        {
+          "path": "registry/default/ui/auth-forms/verify-email.tsx",
+          "type": "registry:component",
+          "target": "components/auth/verify-email.tsx"
+        },
+        {
+          "path": "registry/default/ui/auth-forms/forget-password.tsx",
+          "type": "registry:component",
+          "target": "components/auth/forget-password.tsx"
+        },
+        {
+          "path": "registry/default/ui/auth-forms/reset-password.tsx",
+          "type": "registry:component",
+          "target": "components/auth/reset-password.tsx"
+        },
+        {
+          "path": "registry/default/ui/auth-forms/change-password.tsx",
+          "type": "registry:component",
+          "target": "components/auth/change-password.tsx"
+        },
+        {
+          "path": "registry/default/ui/auth-forms/logout-button.tsx",
+          "type": "registry:component",
+          "target": "components/auth/logout-button.tsx"
+        },
+        {
+          "path": "registry/default/ui/auth-forms/profile.tsx",
+          "type": "registry:component",
+          "target": "components/auth/profile.tsx"
+        },
+        {
+          "path": "registry/default/ui/auth-forms/icons.tsx",
+          "type": "registry:component",
+          "target": "components/icons.tsx"
+        },
+        {
+          "path": "registry/default/ui/auth-forms/index.ts",
+          "type": "registry:component",
+          "target": "components/auth/index.ts"
+        },
+        {
+          "path": "registry/default/lib/auth-client.ts",
+          "type": "registry:lib",
+          "target": "lib/auth-client.ts"
+        },
+        {
+          "path": "registry/default/lib/auth-schemas.ts",
+          "type": "registry:lib",
+          "target": "lib/auth-schemas.ts"
+        }
+      ]
+    }
+  ]
+}
