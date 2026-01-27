@@ -150,11 +150,11 @@ For detailed instructions, visit: [https://better-auth-ui.desishub.com/docs/envi
 
 ### Step 5: Initialize the Database
 
-Generate the Prisma client and push the schema to your database:
+Generate the Prisma client and run migrations:
 
 ```bash
 pnpm prisma generate
-pnpm prisma db push
+pnpm prisma migrate dev
 ```
 
 ### Step 6: Start the Development Server
