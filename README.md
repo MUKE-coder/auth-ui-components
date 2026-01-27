@@ -1,4 +1,4 @@
-# JB Better Auth UI
+# JB Better Auth UI Updated
 
 A complete set of authentication UI components for Next.js applications using [Better Auth](https://www.better-auth.com/). Built with [shadcn/ui](https://ui.shadcn.com/) components, React Hook Form, and Zod validation.
 
@@ -33,6 +33,7 @@ npx shadcn@latest add https://YOUR_DOMAIN/r/auth-components.json
 > **Note:** You need to deploy this registry project first. See [Deployment](#deployment) section.
 
 This will install:
+
 - All authentication UI components to `components/auth/`
 - Auth client configuration to `lib/auth-client.ts`
 - Zod validation schemas to `lib/auth-schemas.ts`
@@ -240,11 +241,7 @@ export default function Dashboard() {
       <LogoutButton />
 
       {/* With custom props */}
-      <LogoutButton
-        variant="destructive"
-        size="sm"
-        showIcon={false}
-      />
+      <LogoutButton variant="destructive" size="sm" showIcon={false} />
     </div>
   );
 }
@@ -281,16 +278,16 @@ export default async function DashboardPage() {
 
 ## Components
 
-| Component | Description |
-|-----------|-------------|
-| `SignUp` | Registration form with social OAuth |
-| `SignIn` | Login form with social OAuth |
-| `VerifyEmail` | 6-digit OTP verification |
-| `ForgetPassword` | Password reset request |
-| `ResetPassword` | New password form |
-| `ChangePassword` | Authenticated password change |
-| `Profile` | User profile management |
-| `LogoutButton` | Configurable logout button |
+| Component        | Description                         |
+| ---------------- | ----------------------------------- |
+| `SignUp`         | Registration form with social OAuth |
+| `SignIn`         | Login form with social OAuth        |
+| `VerifyEmail`    | 6-digit OTP verification            |
+| `ForgetPassword` | Password reset request              |
+| `ResetPassword`  | New password form                   |
+| `ChangePassword` | Authenticated password change       |
+| `Profile`        | User profile management             |
+| `LogoutButton`   | Configurable logout button          |
 
 ## Customization
 
