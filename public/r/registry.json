@@ -17,7 +17,9 @@
         "lucide-react",
         "input-otp",
         "@prisma/adapter-pg",
-        "dotenv"
+        "dotenv",
+        "resend",
+        "@react-email/components"
       ],
       "devDependencies": ["prisma"],
       "registryDependencies": [
@@ -82,6 +84,11 @@
           "target": "components/auth/index.ts"
         },
         {
+          "path": "registry/default/ui/emails/otp-template.tsx",
+          "type": "registry:component",
+          "target": "components/emails/otp-template.tsx"
+        },
+        {
           "path": "registry/default/lib/auth-client.ts",
           "type": "registry:lib",
           "target": "lib/auth-client.ts"
@@ -97,6 +104,16 @@
           "target": "lib/prisma.ts"
         },
         {
+          "path": "registry/default/lib/auth.ts",
+          "type": "registry:lib",
+          "target": "lib/auth.ts"
+        },
+        {
+          "path": "registry/default/lib/email.tsx",
+          "type": "registry:lib",
+          "target": "lib/email.tsx"
+        },
+        {
           "path": "registry/default/prisma/schema.prisma",
           "type": "registry:file",
           "target": "prisma/schema.prisma"
@@ -105,6 +122,11 @@
           "path": "registry/default/prisma.config.ts",
           "type": "registry:file",
           "target": "prisma.config.ts"
+        },
+        {
+          "path": "registry/default/pages/api/auth/[...all]/route.ts",
+          "type": "registry:page",
+          "target": "app/api/auth/[...all]/route.ts"
         },
         {
           "path": "registry/default/pages/auth/sign-in/page.tsx",

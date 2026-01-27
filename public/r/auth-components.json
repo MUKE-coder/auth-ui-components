@@ -12,7 +12,9 @@
     "lucide-react",
     "input-otp",
     "@prisma/adapter-pg",
-    "dotenv"
+    "dotenv",
+    "resend",
+    "@react-email/components"
   ],
   "devDependencies": [
     "prisma"
@@ -89,6 +91,12 @@
       "target": "components/auth/index.ts"
     },
     {
+      "path": "registry/default/ui/emails/otp-template.tsx",
+      "content": "import * as React from \"react\";\nimport {\n  Html,\n  Head,\n  Body,\n  Container,\n  Text,\n  Heading,\n  Section,\n} from \"@react-email/components\";\n\ninterface OTPTemplateProps {\n  otp: string;\n}\n\nexport const OTPTemplate: React.FC<OTPTemplateProps> = ({ otp }) => (\n  <Html>\n    <Head />\n    <Body style={main}>\n      <Container style={container}>\n        <Heading style={h1}>Verification Code</Heading>\n        <Text style={text}>Your verification code is:</Text>\n        <Section style={codeBox}>\n          <Text style={code}>{otp}</Text>\n        </Section>\n        <Text style={text}>It will expire in 10 minutes.</Text>\n      </Container>\n    </Body>\n  </Html>\n);\n\nconst main = {\n  backgroundColor: \"#ffffff\",\n  fontFamily:\n    '-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Oxygen-Sans,Ubuntu,Cantarell,\"Helvetica Neue\",sans-serif',\n};\n\nconst container = {\n  margin: \"0 auto\",\n  padding: \"20px 0 48px\",\n  width: \"560px\",\n};\n\nconst h1 = {\n  fontSize: \"24px\",\n  fontWeight: \"bold\",\n  paddingTop: \"32px\",\n  paddingBottom: \"32px\",\n};\n\nconst text = {\n  fontSize: \"16px\",\n  lineHeight: \"26px\",\n};\n\nconst codeBox = {\n  background: \"#f4f4f4\",\n  borderRadius: \"4px\",\n  margin: \"16px 0\",\n  padding: \"16px\",\n  textAlign: \"center\" as const,\n};\n\nconst code = {\n  fontSize: \"24px\",\n  fontWeight: \"bold\",\n  letterSpacing: \"4px\",\n  margin: \"0\",\n};\n",
+      "type": "registry:component",
+      "target": "components/emails/otp-template.tsx"
+    },
+    {
       "path": "registry/default/lib/auth-client.ts",
       "content": "import { createAuthClient } from \"better-auth/react\";\r\nimport { emailOTPClient } from \"better-auth/client/plugins\";\r\n\r\nexport const authClient = createAuthClient({\r\n  baseURL: process.env.BETTER_AUTH_URL, // e.g. http://localhost:3000\r\n  plugins: [\r\n    emailOTPClient(),\r\n  ],\r\n});\r\n",
       "type": "registry:lib",
@@ -107,6 +115,18 @@
       "target": "lib/prisma.ts"
     },
     {
+      "path": "registry/default/lib/auth.ts",
+      "content": "import { betterAuth } from \"better-auth\";\nimport { prismaAdapter } from \"better-auth/adapters/prisma\";\nimport prisma from \"./prisma\";\nimport { emailOTP } from \"better-auth/plugins\";\nimport { sendVerificationEmail } from \"./email\";\n\nexport const auth = betterAuth({\n  database: prismaAdapter(prisma, {\n    provider: \"postgresql\",\n  }),\n  emailAndPassword: {\n    enabled: true,\n    requireEmailVerification: true,\n  },\n  socialProviders: {\n    google: {\n      clientId: process.env.GOOGLE_CLIENT_ID || \"\",\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET || \"\",\n    },\n    github: {\n      clientId: process.env.GITHUB_CLIENT_ID || \"\",\n      clientSecret: process.env.GITHUB_CLIENT_SECRET || \"\",\n    },\n  },\n  plugins: [\n    emailOTP({\n      async sendVerificationOTP({ email, otp, type }) {\n        try {\n          await sendVerificationEmail(email, otp);\n        } catch (e) {\n          console.error(\"Error in sendVerificationOTP plugin wrapper:\", e);\n          // Fallback logging for development\n          console.log(`[DEV FALLBACK] OTP for ${email}: ${otp}`);\n        }\n      },\n    }),\n  ],\n});\n",
+      "type": "registry:lib",
+      "target": "lib/auth.ts"
+    },
+    {
+      "path": "registry/default/lib/email.tsx",
+      "content": "import { Resend } from \"resend\";\nimport { OTPTemplate } from \"@/components/emails/otp-template\";\n\nconst resend = new Resend(process.env.RESEND_API_KEY);\n\nexport async function sendVerificationEmail(email: string, otp: string) {\n  try {\n    console.log(`Attempting to send OTP email to ${email}...`);\n\n    if (!process.env.RESEND_API_KEY) {\n      console.warn(\"WARNING: RESEND_API_KEY is not set. Email sending will likely fail.\");\n    }\n\n    const { data, error } = await resend.emails.send({\n      from: process.env.RESEND_FROM_EMAIL || \"onboarding@resend.dev\",\n      to: email,\n      subject: \"Your Verification Code\",\n      react: <OTPTemplate otp={otp} />,\n    });\n\n    if (error) {\n      console.error(\"Resend API Error:\", error);\n      throw error;\n    }\n\n    console.log(`Email sent successfully to ${email}. ID:`, data?.id);\n    return data;\n  } catch (error) {\n    console.error(\"Failed to send verification email:\", error);\n    if (error instanceof Error) {\n      console.error(\"Error Message:\", error.message);\n      console.error(\"Error Stack:\", error.stack);\n    }\n    throw error;\n  }\n}\n",
+      "type": "registry:lib",
+      "target": "lib/email.tsx"
+    },
+    {
       "path": "registry/default/prisma/schema.prisma",
       "content": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../lib/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id            String    @id @default(cuid())\n  email         String    @unique\n  name          String?\n  emailVerified Boolean\n  image         String?\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @updatedAt\n  role          String?   @default(\"user\")\n  sessions      Session[]\n  accounts      Account[]\n\n  @@map(\"user\")\n}\n\nmodel Session {\n  id        String   @id @default(cuid())\n  userId    String\n  token     String\n  expiresAt DateTime\n  ipAddress String?\n  userAgent String?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@map(\"session\")\n}\n\nmodel Account {\n  id                    String    @id @default(cuid())\n  userId                String\n  accountId             String\n  providerId            String\n  accessToken           String?\n  refreshToken          String?\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String?\n  password              String?\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"account\")\n}\n\nmodel Verification {\n  id         String   @id @default(cuid())\n  identifier String\n  value      String\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@map(\"verification\")\n}\n",
       "type": "registry:file",
@@ -117,6 +137,12 @@
       "content": "import \"dotenv/config\";\nimport { defineConfig } from \"prisma/config\";\n\nexport default defineConfig({\n  schema: \"prisma/schema.prisma\",\n  migrations: {\n    path: \"prisma/migrations\",\n  },\n  datasource: {\n    url: process.env[\"DATABASE_URL\"],\n  },\n});\n",
       "type": "registry:file",
       "target": "prisma.config.ts"
+    },
+    {
+      "path": "registry/default/pages/api/auth/[...all]/route.ts",
+      "content": "import { auth } from \"@/lib/auth\";\nimport { toNextJsHandler } from \"better-auth/next-js\";\n\nexport const dynamic = \"force-dynamic\";\n\nexport const { GET, POST } = toNextJsHandler(auth.handler);\n",
+      "type": "registry:page",
+      "target": "app/api/auth/[...all]/route.ts"
     },
     {
       "path": "registry/default/pages/auth/sign-in/page.tsx",
@@ -162,7 +188,7 @@
     },
     {
       "path": "registry/default/env.example",
-      "content": "# Better Auth Configuration\nBETTER_AUTH_SECRET=\"\"\nBETTER_AUTH_URL=\"http://localhost:3000\"\n\n# Database (PostgreSQL, MySQL, or SQLite)\nDATABASE_URL=\"\"\n\n# Email Provider (Resend)\nRESEND_FROM_EMAIL=\"\"\nRESEND_API_KEY=\"\"\n\n# OAuth Providers (Optional)\nGOOGLE_CLIENT_ID=\"\"\nGOOGLE_CLIENT_SECRET=\"\"\n\nGITHUB_CLIENT_ID=\"\"\nGITHUB_CLIENT_SECRET=\"\"\n",
+      "content": "# Better Auth Configuration\n# Generate secret with: openssl rand -base64 32\nBETTER_AUTH_SECRET=\"\"\nBETTER_AUTH_URL=\"http://localhost:3000\"\n\n# Database (PostgreSQL recommended)\n# Example: postgresql://user:password@host:5432/dbname\nDATABASE_URL=\"\"\n\n# Email Provider (Resend)\n# Get your API key at: https://resend.com\nRESEND_FROM_EMAIL=\"\"\nRESEND_API_KEY=\"\"\n\n# OAuth Providers (Optional)\n# Google: https://console.cloud.google.com/apis/credentials\nGOOGLE_CLIENT_ID=\"\"\nGOOGLE_CLIENT_SECRET=\"\"\n\n# GitHub: https://github.com/settings/developers\nGITHUB_CLIENT_ID=\"\"\nGITHUB_CLIENT_SECRET=\"\"\n",
       "type": "registry:file",
       "target": ".env.example"
     }

@@ -371,8 +371,8 @@ export default function DocsPage() {
                 Generate the Prisma client and run migrations:
               </p>
               <div className="bg-muted rounded-lg p-4 font-mono text-sm overflow-x-auto space-y-2">
+                <pre>{`npx prisma migrate dev ---name init`}</pre>
                 <pre>{`npx prisma generate`}</pre>
-                <pre>{`npx prisma db push`}</pre>
               </div>
             </div>
 
