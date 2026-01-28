@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Onest } from "next/font/google";
-
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Toaster } from "sonner";
 
@@ -55,6 +55,7 @@ export default function RootLayout({
       <body className={`font-sans antialiased ${onest.className}`}>
         {children}
         <Toaster richColors />
+        <Analytics />
       </body>
     </html>
   );
