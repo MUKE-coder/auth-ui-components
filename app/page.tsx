@@ -14,6 +14,9 @@ import {
   Code2,
   ArrowRight,
   ExternalLink,
+  Youtube,
+  Linkedin,
+  Globe,
 } from "lucide-react";
 
 type PackageManager = "npx" | "pnpm";
@@ -145,6 +148,27 @@ export default function DocsPage() {
             <span className="font-bold text-lg">JB Better Auth UI</span>
           </div>
           <div className="flex items-center gap-4">
+            <Link
+              href="https://jb.desishub.com/"
+              target="_blank"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Globe className="h-5 w-5" />
+            </Link>
+            <Link
+              href="https://www.youtube.com/@JBWEBDEVELOPER"
+              target="_blank"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Youtube className="h-5 w-5" />
+            </Link>
+            <Link
+              href="https://www.linkedin.com/in/muke-johnbaptist-95bb82198/"
+              target="_blank"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Linkedin className="h-5 w-5" />
+            </Link>
             <Link
               href="https://github.com/MUKE-coder/auth-ui-components"
               target="_blank"
@@ -578,6 +602,27 @@ export const auth = betterAuth({
             with Better Auth and shadcn/ui
           </p>
           <div className="flex items-center gap-4">
+            <Link
+              href="https://jb.desishub.com/"
+              target="_blank"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Globe className="h-5 w-5" />
+            </Link>
+            <Link
+              href="https://www.youtube.com/@JBWEBDEVELOPER"
+              target="_blank"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Youtube className="h-5 w-5" />
+            </Link>
+            <Link
+              href="https://www.linkedin.com/in/muke-johnbaptist-95bb82198/"
+              target="_blank"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Linkedin className="h-5 w-5" />
+            </Link>
             <Link
               href="https://github.com/MUKE-coder/auth-ui-components"
               target="_blank"
