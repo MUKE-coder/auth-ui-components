@@ -32,7 +32,15 @@
         "card",
         "separator",
         "input-otp",
-        "avatar"
+        "avatar",
+        "sidebar",
+        "tabs",
+        "table",
+        "checkbox",
+        "select",
+        "badge",
+        "progress",
+        "textarea"
       ],
       "files": [
         {
@@ -184,6 +192,21 @@
           "path": "registry/default/pages/dashboard/page.tsx",
           "type": "registry:page",
           "target": "app/dashboard/page.tsx"
+        },
+        {
+          "path": "registry/default/pages/dashboard/layout.tsx",
+          "type": "registry:page",
+          "target": "app/dashboard/layout.tsx"
+        },
+        {
+          "path": "registry/default/ui/dashboard/app-sidebar.tsx",
+          "type": "registry:component",
+          "target": "components/dashboard/app-sidebar.tsx"
+        },
+        {
+          "path": "registry/default/pages/profile/page.tsx",
+          "type": "registry:page",
+          "target": "app/profile/page.tsx"
         }
       ]
     }
